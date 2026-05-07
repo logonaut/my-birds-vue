@@ -1,3 +1,53 @@
+<script setup>
+import { reactive } from 'vue'
+import { useTitle } from '@vueuse/core'
+import AppButton from '@/components/AppButton.vue'
+import FormField from '@/components/FormField.vue'
+
+useTitle('Create account · Birds')
+
+const form = reactive({ email: '', password: '' })
+</script>
+
 <template>
-  <h1>Register Page</h1>
+  <main class="flex flex-1 items-center justify-center px-5 py-16">
+    <div class="rise w-full max-w-sm">
+      <div class="mb-8 text-center">
+        <span class="chip chip-accent">New account</span>
+        <h1 class="mt-3 text-2xl font-semibold tracking-tight text-text">Start recording today</h1>
+        <p class="mt-1.5 text-sm text-text-2">Create your free Birds account.</p>
+      </div>
+      <form
+        class="card flex flex-col gap-4 p-6"
+        @submit.prevent
+      >
+        <FormField
+          v-model="form.email"
+          label="Email"
+          type="email"
+          autocomplete="email"
+          required
+          placeholder="you@company.com"
+        />
+        <FormField
+          v-model="form.password"
+          label="Password"
+          type="password"
+          autocomplete="new-password"
+          placeholder="At least 8 characters…"
+          hint="Min 8"
+          required
+        />
+        <AppButton type="submit">Create account</AppButton>
+      </form>
+      <p class="mt-5 text-center text-sm text-text-2">
+        Already have an account?
+        <RouterLink
+          to="/login"
+          class="font-medium text-accent underline-offset-4 hover:underline"
+          >Sign in</RouterLink
+        >
+      </p>
+    </div>
+  </main>
 </template>
