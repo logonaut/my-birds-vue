@@ -1,15 +1,19 @@
 <script setup>
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { useBirdsStore } from '@/stores/birds'
+import { useSightingsStore } from '@/stores/sightings'
 import AppButton from './AppButton.vue'
 
 const auth = useAuthStore()
 const router = useRouter()
+const birds = useBirdsStore()
+const sightings = useSightingsStore()
 
 async function onLogout() {
   await auth.logout()
-  // birds.reset()     <-- Part 2 will add these
-  // sightings.reset() <-- Part 2 will add these
+  birds.reset()
+  sightings.reset()
   router.replace('/login')
 }
 
@@ -60,6 +64,7 @@ const linkClass =
             >beta</span
           >
         </RouterLink>
+
         <nav
           class="flex items-center gap-4"
           aria-label="Primary"
@@ -80,9 +85,8 @@ const linkClass =
               <span
                 class="text-sm text-text-2"
                 translate="no"
+                >{{ auth.email }}</span
               >
-                {{ auth.email }}
-              </span>
               <AppButton
                 variant="ghost"
                 size="sm"
@@ -100,7 +104,7 @@ const linkClass =
             >
             <RouterLink
               to="/register"
-              class="roudned-md bg-accent px-3 py-1.5 text-xs font-medium text-accent-ink transition-opacity hover:opacity-90"
+              class="rounded-md bg-accent px-3 py-1.5 text-xs font-medium text-accent-ink transition-opacity hover:opacity-90"
               >Get started</RouterLink
             >
           </template>
