@@ -1,12 +1,28 @@
 <script setup>
 import { reactive } from 'vue'
+import { useRouter } from 'vue-router'
 import { useTitle } from '@vueuse/core'
 import AppButton from '@/components/AppButton.vue'
 import FormField from '@/components/FormField.vue'
+import { useAuthStore } from '@/stores/auth'
+import { useAsync } from '@/composables/useAsync'
 
 useTitle('Create account · Birds')
 
+const router = useRouter()
+const auth = useAuthStore()
+const { loading, error, fieldErrors, run } = useAsync()
+
 const form = reactive({ email: '', password: '' })
+
+async function onSubmit() {
+  try {
+    await run(() => auth.register(form))
+    router.replace('/birds')
+  } catch {
+    // shown via error state
+  }
+}
 </script>
 
 <template>
@@ -17,9 +33,10 @@ const form = reactive({ email: '', password: '' })
         <h1 class="mt-3 text-2xl font-semibold tracking-tight text-text">Start recording today</h1>
         <p class="mt-1.5 text-sm text-text-2">Create your free Birds account.</p>
       </div>
+
       <form
         class="card flex flex-col gap-4 p-6"
-        @submit.prevent
+        @submit.prevent="onSubmit"
       >
         <FormField
           v-model="form.email"
@@ -28,6 +45,7 @@ const form = reactive({ email: '', password: '' })
           autocomplete="email"
           required
           placeholder="you@company.com"
+          :error="fieldErrors.email"
         />
         <FormField
           v-model="form.password"
@@ -37,9 +55,27 @@ const form = reactive({ email: '', password: '' })
           placeholder="At least 8 characters…"
           hint="Min 8"
           required
+          :error="fieldErrors.password"
         />
-        <AppButton type="submit">Create account</AppButton>
+
+        <p
+          v-if="error && Object.keys(fieldErrors).length === 0"
+          class="flex items-center gap-2 rounded-md border border-danger/30 bg-danger-soft px-3 py-2 text-xs text-danger"
+          role="alert"
+          aria-live="polite"
+        >
+          <span aria-hidden="true">⚠</span>
+          {{ error.message }}
+        </p>
+
+        <AppButton
+          type="submit"
+          :loading="loading"
+        >
+          {{ loading ? 'Creating account…' : 'Create account' }}
+        </AppButton>
       </form>
+
       <p class="mt-5 text-center text-sm text-text-2">
         Already have an account?
         <RouterLink

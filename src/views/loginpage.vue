@@ -1,12 +1,30 @@
 <script setup>
 import { reactive } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { useTitle } from '@vueuse/core'
 import AppButton from '@/components/AppButton.vue'
 import FormField from '@/components/FormField.vue'
+import { useAuthStore } from '@/stores/auth'
+import { useAsync } from '@/composables/useAsync'
 
 useTitle('Sign in · Birds')
 
+const router = useRouter()
+const route = useRoute()
+const auth = useAuthStore()
+const { loading, error, fieldErrors, run } = useAsync()
+
 const form = reactive({ email: '', password: '' })
+
+async function onSubmit() {
+  try {
+    await run(() => auth.login(form))
+    const redirect = typeof route.query.redirect === 'string' ? route.query.redirect : '/birds'
+    router.replace(redirect)
+  } catch {
+    // error captured by useAsync — stays on page
+  }
+}
 </script>
 
 <template>
@@ -19,7 +37,7 @@ const form = reactive({ email: '', password: '' })
       </div>
       <form
         class="card flex flex-col gap-4 p-6"
-        @submit.prevent
+        @submit.prevent="onSubmit"
       >
         <FormField
           v-model="form.email"
@@ -28,6 +46,7 @@ const form = reactive({ email: '', password: '' })
           autocomplete="email"
           required
           placeholder="you@company.com"
+          :error="fieldErrors.email"
         />
         <FormField
           v-model="form.password"
@@ -35,8 +54,25 @@ const form = reactive({ email: '', password: '' })
           type="password"
           autocomplete="current-password"
           required
+          :error="fieldErrors.password"
         />
-        <AppButton type="submit">Sign in</AppButton>
+
+        <p
+          v-if="error && Object.keys(fieldErrors).length === 0"
+          class="flex items-center gap-2 rounded-md border border-danger/30 bg-danger-soft px-3 py-2 text-xs text-danger"
+          role="alert"
+          aria-live="polite"
+        >
+          <span aria-hidden="true">⚠</span>
+          {{ error.message }}
+        </p>
+
+        <AppButton
+          type="submit"
+          :loading="loading"
+        >
+          {{ loading ? 'Signing in…' : 'Sign in' }}
+        </AppButton>
       </form>
       <p class="mt-5 text-center text-sm text-text-2">
         New here?
