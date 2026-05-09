@@ -22,7 +22,7 @@ async function onSubmit() {
     const redirect = typeof route.query.redirect === 'string' ? route.query.redirect : '/birds'
     router.replace(redirect)
   } catch {
-    // error captured by useAsync — stays on page
+    // error captured
   }
 }
 </script>
