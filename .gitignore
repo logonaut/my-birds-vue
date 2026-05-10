@@ -32,10 +32,6 @@ dist-ssr
 ehthumbs.db
 Thumbs.db
 .dccache
-# local env files
-.env
-.env.local
-.env.*.local
-.env.*
-!.env.example
 
+.env*
+!.env.example
